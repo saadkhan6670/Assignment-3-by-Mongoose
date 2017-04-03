@@ -1,5 +1,8 @@
 
 var cache = require('memory-cache');
+var mongoose = require('mongoose');
+
+var User = mongoose.model('Users');
 
 
 

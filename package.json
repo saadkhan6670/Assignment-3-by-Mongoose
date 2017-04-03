@@ -19,5 +19,8 @@
     "node-validator": "^0.1.26",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
