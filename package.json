@@ -1,0 +1,23 @@
+{
+  "name": "assignment2",
+  "version": "1.0.0",
+  "description": "Account Module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Ahsan Khan",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.2",
+    "express-session": "^1.15.1",
+    "memory-cache": "^0.1.6",
+    "mongoose": "^4.9.3",
+    "node-validator": "^0.1.26",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0"
+  }
+}
