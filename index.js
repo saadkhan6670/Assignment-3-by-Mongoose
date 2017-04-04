@@ -3,6 +3,9 @@ var express = require('express');
 var app = express();
 var port = 5000;
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/UserDB');
 
 
 app.use(bodyParser.json()); // support json encoded bodies

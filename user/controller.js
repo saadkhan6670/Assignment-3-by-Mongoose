@@ -4,52 +4,16 @@ var mongoose = require('mongoose');
 
 var User = mongoose.model('Users');
 
-
-
-//code below will initialize an empty array in cache key and then retrieve it in var = arr
-cache.put('users', []);
-var arr = cache.get('users');
-
 exports.createUser = function(req, res) {
+  var NewUser = new User(req.body);
+    NewUser.save (function (err,user) {
 
+        if (err)
+            res.send("Cant Create User ! TRY AGAIN");
+        res.send(user)
 
-    // because we dont want first entry to be validate so we put this if statement
+    })
 
-   if(arr.length == 0) {
-
-       arr.push(req.body);
-       cache.put('user', arr);
-       res.send(cache.get('user'));
-       console.log('User' + " " + arr.length + " " + 'created');
-       console.log(cache.get('user'));
-
-   }
-   else {
-
-
-       var validateUser = false;
-
-       arr.forEach(function (user) {
-
-           var storedEmail = user.email;
-           var newEmail = req.body.email;
-
-           if (storedEmail == newEmail) {
-               validateUser = true;
-           }
-       });
-
-
-       if(!validateUser) {
-               arr.push(req.body);
-               res.send(cache.get('user'));
-               console.log('User' + " " + arr.length + " " + 'created');
-               console.log(cache.get('user'));
-       }
-       else {
-           res.send("Email already exist");
-       }
-   }
 };
 
 
