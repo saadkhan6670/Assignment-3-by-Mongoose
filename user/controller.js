@@ -1,6 +1,5 @@
-
-var cache = require('memory-cache');
 var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/UserDB');
 
 var User = mongoose.model('Users');
 
