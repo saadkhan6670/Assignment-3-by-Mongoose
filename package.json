@@ -16,6 +16,7 @@
     "express-session": "^1.15.1",
     "memory-cache": "^0.1.6",
     "mongoose": "^4.9.3",
+    "mpromise": "^0.5.5",
     "node-validator": "^0.1.26",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0"
