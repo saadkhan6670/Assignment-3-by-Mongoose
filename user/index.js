@@ -4,6 +4,7 @@ var user = require('./controller');
 
 
 router.post('/create-user' , user.createUser);
+router.get('/show-user' , user.ShowUser);
 
 router.post('/login-user', user.logInUser);
 

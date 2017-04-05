@@ -1,44 +1,30 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/UserDB');
 
-var User = mongoose.model('Users');
+var Users = require('./model');
 
 exports.createUser = function(req, res) {
-  var NewUser = new User(req.body);
+    mongoose.Promise = global.Promise;
+
+  var NewUser = new Users(req.body);
     NewUser.save (function (err,user) {
 
         if (err)
-            res.send("Cant Create User ! TRY AGAIN");
-        res.send(user)
+            res.send(err);
+        res.json(user);
 
-    })
+    });
+};
 
+exports.ShowUser = function (req,res) {
+    Users.find({}, function(err, user) {
+        if (err)
+            res.send(err);
+        res.json(user);
+    });
 };
 
 
-
 exports.logInUser = function (req, res) {
-
-    var LoginCredential = req.body;
-    var validity = false;
-
-    //For Each is used for getting data from an array
-    arr.forEach(function (login) {
-
-        var logInEmail = login.email;
-    var logInPass = login.password;
-
-        if(LoginCredential.email == logInEmail && LoginCredential.password  == logInPass)
-        {
-            validity = true;
-        }
-    });
- if(!validity){
-     res.send("Error! No user found");
- }
- else {
-     res.send("Welcome User");
- }
 };
 
 
