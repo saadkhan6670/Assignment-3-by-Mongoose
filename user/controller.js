@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-//var Users = require('./Model');
 var Users = mongoose.model('Users');
 var Promise = require('mpromise');
 
@@ -10,7 +9,7 @@ exports.createUser = function(req, res) {
   var NewUser = new Users(req.body);
     NewUser.save (function (err,user) {
         if (err)
-            res.send("Cant use same email");
+            res.send("Error:" + err);
 
         res.json(user);
 
