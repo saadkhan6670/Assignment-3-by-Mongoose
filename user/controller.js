@@ -1,16 +1,18 @@
 var mongoose = require('mongoose');
-var Users = require('./model');
+var Users = require('./Model');
+//var Users = mongoose.model('Users');
 var Promise = require('mpromise');
 
+mongoose.Promise = global.Promise;
+
 exports.createUser = function(req, res) {
-    mongoose.Promise = global.Promise;
 
   var NewUser = new Users(req.body);
     NewUser.save (function (err,user) {
-        if (err){
-            res.send("Cant use same email");}
-        else {
-        res.json(user);}
+        if (err)
+            res.send("Cant use same email");
+
+        res.json(user);
 
     });
 };
@@ -33,13 +35,35 @@ exports.logInUser = function (req, res) {
             console.log(err);
             res.sendStatus(500);}
         if(!user ){
-            return res.status(500).send("No such user");}
+             res.send("No such user");}
 
-            return res.status(200).send("Welcome USer");
+             res.send("Welcome User");
 
     })
 
 };
 
 exports.userProfile = function (req, res){
+    var email = req.params.email;
+
+    Users.findOne ({email:email},function (err,user) {
+        if(err ){
+            console.log(err);
+            res.sendStatus(500);}
+        if(!user ){
+             res.send("No such user");}
+
+             res.send("Welcome User \n\n "+ user);
+
+    })
+};
+
+//remove users from the db
+exports.Remove = function (req,res) {
+    Users.remove({},function (err,user) {
+        if (err)
+            console.log(err);
+        res.send("Users deleted");
+
+    })
 };
