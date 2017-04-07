@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
-var Users = require('./Model');
-//var Users = mongoose.model('Users');
+//var Users = require('./Model');
+var Users = mongoose.model('Users');
 var Promise = require('mpromise');
 
 mongoose.Promise = global.Promise;
