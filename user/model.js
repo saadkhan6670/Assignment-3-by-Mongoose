@@ -7,7 +7,7 @@ var emailValidate =[
     validate({
         validator : 'matches',
         arguments:/^[\w.]+[@]+[a-zA-Z]+.com$/,
-        message:'Must be a valid email'
+        message:'Invalid Email'
     })
 ];
 
@@ -15,14 +15,14 @@ var phoneValidate =[
     validate({
         validator : 'matches',
         arguments:/^923[1-9]{9}$/,
-        message: ' must be a valid phone '
+        message:'Invalid Phone'
     })
 ];
 
 var UserSchema = new Schema ({
     firstname : String,
     lastname : String,
-    email : { type:String, unique: true, lowercase:true, validate:emailValidate },
+    email : { type:String, validate:emailValidate, unique: true, lowercase:true, message:"Email already exits" },
     phone : {type:Number, validate:phoneValidate},
     password : String
 

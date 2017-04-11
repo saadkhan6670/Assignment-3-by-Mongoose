@@ -1,15 +1,18 @@
 var mongoose = require('mongoose');
 var Users = mongoose.model('Users');
 var Promise = require('mpromise');
+var boom = require('boom');
 
 mongoose.Promise = global.Promise;
 
 exports.createUser = function(req, res) {
 
   var NewUser = new Users(req.body);
+
     NewUser.save (function (err,user) {
+
         if (err)
-            res.send("Error:" + err);
+            res.send(boom.unauthorized(err));
 
         res.json(user);
 
@@ -18,8 +21,9 @@ exports.createUser = function(req, res) {
 
 exports.ShowUser = function (req,res) {
     Users.find({}, function(err, user) {
-        if (err)
-            res.send(err);
+        if (!user)
+            res.send(boom.badRequest('invalid query'));
+
         res.json(user);
     });
 };
