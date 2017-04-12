@@ -10,7 +10,6 @@ exports.createUser = function(req, res) {
   var NewUser = new Users(req.body);
 
     NewUser.save (function (err,user) {
-
         if (err)
             res.send(boom.unauthorized(err));
 

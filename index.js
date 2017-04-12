@@ -1,15 +1,17 @@
 'use strict';
 var express = require('express');
+var bodyParser = require('body-parser');
+var flash = require('connect-flash');
 var app = express();
 var port = 3000;
-var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-
+var passport = require('passport');
+var LocalStrategy = require('passport-local');
+var session = require('express-session');
 var Users = require('./user/Model');
 
 //Connect to mongodb
 mongoose.connect('mongodb://localhost/UserDB');
-
 
 //connection and error checking
 mongoose.connection.once('open',function () {
@@ -18,10 +20,24 @@ mongoose.connection.once('open',function () {
     console.log("Connection Error:",error);
 });
 
+app.use('/user', require('./user'));
+
+//body parser middleware
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.use('/user', require('./user'));
+
+//Express Session
+app.use(session({
+    secret:'secret',
+    saveUninitialized: true,
+    resave : true
+}));
+
+//passport init
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.listen(port, function () {
     console.log('Running server on ' + port);
