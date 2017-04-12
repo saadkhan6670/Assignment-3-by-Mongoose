@@ -6,7 +6,7 @@ var app = express();
 var port = 3000;
 var mongoose = require('mongoose');
 var passport = require('passport');
-var LocalStrategy = require('passport-local');
+var LocalStrategy = require('passport-local').Strategy;
 var session = require('express-session');
 var Users = require('./user/Model');
 
@@ -19,8 +19,6 @@ mongoose.connection.once('open',function () {
 }).on('error',function (error) {
     console.log("Connection Error:",error);
 });
-
-app.use('/user', require('./user'));
 
 //body parser middleware
 app.use(bodyParser.json()); // support json encoded bodies
@@ -38,6 +36,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/user', require('./user'));
 
 app.listen(port, function () {
     console.log('Running server on ' + port);

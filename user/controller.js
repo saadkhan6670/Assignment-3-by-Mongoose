@@ -2,6 +2,10 @@ var mongoose = require('mongoose');
 var Users = mongoose.model('Users');
 var Promise = require('mpromise');
 var boom = require('boom');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+
 
 mongoose.Promise = global.Promise;
 
@@ -29,21 +33,52 @@ exports.ShowUser = function (req,res) {
 
 
 exports.logInUser = function (req, res) {
-   var email = req.body.email;
-   var password = req.body.password;
 
-    Users.findOne({email: email,password :password},function (err,user) {
-        if(err ){
-            console.log(err);
-            res.sendStatus(500);}
-        if(!user ){
-             res.send("No such user");}
+    passport.use(new LocalStrategy({
+        usernameField : req.body.email,
+        passwordField : req.body.password
+        },
+        function(username, password, done) {
+            Users.findOne({ username: username }, function(err, user) {
+                if (err) { return done(err); }
+                if (!user) {
+                    return done(null, false, { message: 'Incorrect username.' });
+                }
+                if (!user.passwordField(password)) {
+                    return done(null, false, { message: 'Incorrect password.' });
+                }
+                return done(null, user);
+            });
+        }
+    ));
 
-             res.send("Welcome User");
+    passport.serializeUser(function(user, done) {
+        done(null, user.id);
+    });
 
-    })
-
+    passport.deserializeUser(function(id, done) {
+        Users.findById(id, function(err, user) {
+            done(err, user);
+        });
+    });
 };
+
+
+//    var email = req.body.email;
+//    var password = req.body.password;
+//
+//     Users.findOne({email: email,password :password},function (err,user) {
+//         if(err ){
+//             console.log(err);
+//             res.sendStatus(500);}
+//         if(!user ){
+//              res.send("No such user");}
+//
+//              res.send("Welcome User");
+//
+//     })
+//
+// };
 
 exports.userProfile = function (req, res){
     var email = req.params.email;
