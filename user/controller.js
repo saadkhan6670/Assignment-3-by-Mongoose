@@ -4,7 +4,35 @@ var Promise = require('mpromise');
 var boom = require('boom');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var bearerStrategy = require('passport-http-bearer').Strategy;
+var jwt = require('jsonwebtoken');
 
+
+passport.use(new LocalStrategy({
+        usernameField: 'email'
+    },
+    function(username, password, done) {
+        Users.findOne({email:username,password:password}, function(err, user) {
+            if (err) { return done(err); }
+            if (!user) {
+                return done(null, false);}
+
+            return done(null,user);
+        });
+    }
+));
+
+passport.use(new bearerStrategy({},
+    function (token, done) {
+        Users.findOne({}, function (err,user) {
+            if(!user)
+                return done(null,false);
+            return done (null,user);
+
+        })
+    }
+
+));
 
 
 mongoose.Promise = global.Promise;
@@ -32,37 +60,20 @@ exports.ShowUser = function (req,res) {
 };
 
 
-exports.logInUser = function (req, res) {
+exports.logInUser = function (req,res,next) {
+    passport.authenticate('local', function (err, user) {
+        if (err) {
+            return next(err); }
 
-    passport.use(new LocalStrategy({
-        usernameField : req.body.email,
-        passwordField : req.body.password
-        },
-        function(username, password, done) {
-            Users.findOne({ username: username }, function(err, user) {
-                if (err) { return done(err); }
-                if (!user) {
-                    return done(null, false, { message: 'Incorrect username.' });
-                }
-                if (!user.passwordField(password)) {
-                    return done(null, false, { message: 'Incorrect password.' });
-                }
-                return done(null, user);
-            });
-        }
-    ));
+        if (!user) {
+            return res.send('Invalid Credentials'); }
+            else {
+            var myToken = jwt.sign({},'secret');
 
-    passport.serializeUser(function(user, done) {
-        done(null, user.id);
-    });
+            return res.send('Welcome User Your token fo accessing your profile is TOKEN:' + myToken);
+        }})(req, res, next);
 
-    passport.deserializeUser(function(id, done) {
-        Users.findById(id, function(err, user) {
-            done(err, user);
-        });
-    });
 };
-
 
 //    var email = req.body.email;
 //    var password = req.body.password;
@@ -97,10 +108,12 @@ exports.userProfile = function (req, res){
 
 //remove users from the db
 exports.Remove = function (req,res) {
-    Users.remove({},function (err,user) {
+    var id = req.query.access_token.toString();
+
+    Users.remove({id:id},function (err,user) {
         if (err)
             console.log(err);
-        res.send("Users deleted");
+        res.send("Users  deleted");
 
     })
 };

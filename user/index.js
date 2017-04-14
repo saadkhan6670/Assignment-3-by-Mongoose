@@ -7,21 +7,12 @@ var LocalStrategy = require('passport-local').Strategy;
 
 router.post('/create-user' , user.createUser);
 
+router.post('/login-user',user.logInUser);
 
-router.post('/login-user',user.logInUser, passport.authenticate('local',{
-    successRedirect:'/',
-    failureRedirect:'/login-user',
-    failureFlash: true
-    }),
-    function(req, res) {
-    res.redirect('/');
+router.get('/remove-user',passport.authenticate('bearer', { session: false }), user.Remove);
+router.get('/show-user' ,passport.authenticate('bearer', { session: false }), user.ShowUser);
 
-    });
-
-router.get('/remove-user', user.Remove);
-router.get('/show-user' , user.ShowUser);
-
-router.get('/user-profile/:email', user.userProfile);
+router.get('/user-profile/:email',passport.authenticate('bearer', { session: false }), user.userProfile);
 
 
 module.exports = router;
