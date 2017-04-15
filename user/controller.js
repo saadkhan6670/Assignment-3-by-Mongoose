@@ -6,6 +6,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var bearerStrategy = require('passport-http-bearer').Strategy;
 var jwt = require('jsonwebtoken');
+var expressJWT = require('express-jwt');
 
 
 passport.use(new LocalStrategy({
@@ -51,14 +52,13 @@ exports.createUser = function(req, res) {
 };
 
 exports.ShowUser = function (req,res) {
-    Users.find({}, function(err, user) {
+    Users.findOne({}, function(err, user) {
         if (!user)
             res.send(boom.badRequest('invalid query'));
 
         res.json(user);
     });
 };
-
 
 exports.logInUser = function (req,res,next) {
     passport.authenticate('local', function (err, user) {
@@ -70,7 +70,8 @@ exports.logInUser = function (req,res,next) {
             else {
             var myToken = jwt.sign({},'secret');
 
-            return res.send('Welcome User Your token fo accessing your profile is TOKEN:' + myToken);
+            res.send('Welcome '+ user.firstname +' Your token for accessing your profile is \n TOKEN:' + myToken);
+
         }})(req, res, next);
 
 };
@@ -116,4 +117,9 @@ exports.Remove = function (req,res) {
         res.send("Users  deleted");
 
     })
+};
+
+exports.give = function (req,res) {
+    res.send(myToken);
+
 };

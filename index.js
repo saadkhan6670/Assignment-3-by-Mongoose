@@ -7,7 +7,6 @@ var port = 3000;
 var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var expressJWT = require('express-jwt');
 var Users = require('./user/Model');
 
 
@@ -24,6 +23,7 @@ mongoose.connection.once('open',function () {
 //body parser middleware
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 
 
 //passport init
