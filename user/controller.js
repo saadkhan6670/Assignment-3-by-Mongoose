@@ -6,34 +6,8 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var bearerStrategy = require('passport-http-bearer').Strategy;
 var jwt = require('jsonwebtoken');
-var expressJWT = require('express-jwt');
 
-
-passport.use(new LocalStrategy({
-        usernameField: 'email'
-    },
-    function(username, password, done) {
-        Users.findOne({email:username,password:password}, function(err, user) {
-            if (err) { return done(err); }
-            if (!user) {
-                return done(null, false);}
-
-            return done(null,user);
-        });
-    }
-));
-
-passport.use(new bearerStrategy({},
-    function (token, done) {
-        Users.findOne({}, function (err,user) {
-            if(!user)
-                return done(null,false);
-            return done (null,user);
-
-        })
-    }
-
-));
+var myToken ;
 
 
 mongoose.Promise = global.Promise;
@@ -52,45 +26,80 @@ exports.createUser = function(req, res) {
 };
 
 exports.ShowUser = function (req,res) {
-    Users.findOne({}, function(err, user) {
-        if (!user)
-            res.send(boom.badRequest('invalid query'));
+    Users.find({},function (err , user) {
+        if (err) {
+            res.send(err)
+        }
 
-        res.json(user);
-    });
+        else {
+            jwt.verify(myToken,'secret' ,function (err,decoded) {
+                res.send(decoded);
+            });
+           // res.send(user);
+
+        }
+    })
 };
 
-exports.logInUser = function (req,res,next) {
-    passport.authenticate('local', function (err, user) {
-        if (err) {
-            return next(err); }
+
+
+exports.logInUser = function (req,res) {
+
+   var email = req.body.email;
+   var password = req.body.password;
+
+    Users.findOne({
+        email: email
+    }, function(err, user) {
+
+        if (err) throw err;
 
         if (!user) {
-            return res.send('Invalid Credentials'); }
-            else {
-            var myToken = jwt.sign({},'secret');
+            res.json({ success: false, message: 'Authentication failed. User not found.' });
+        } else if (user) {
 
-            res.send('Welcome '+ user.firstname +' Your token for accessing your profile is \n TOKEN:' + myToken);
+            // check if password matches
+            if (user.password != password) {
+                res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+            } else {
 
-        }})(req, res, next);
+                // if user is found and password is right
+                // create a token
+                var token = jwt.sign({
+                    id: user._id ,
+                    email:email}, 'secret', {
+                    expiresIn: 10 * 60000 // expires in 10 mins
+                });
+
+                // return the information including token as JSON
+                res.json({
+                    success: true,
+                    message: 'Enjoy your token!',
+                    token: token
+                });
+            }
+
+        }
+
+    });
+
+    // Users.findOne({email: email,password :password},function (err,user) {
+    //     if(err ){
+    //         console.log(err);
+    //         res.sendStatus(500);}
+    //     if(!user ){
+    //          res.send("No such user");}
+    //
+    //          else {
+    //          myToken = jwt.sign({
+    //             id: user._id,
+    //             email: email},'secret',{ expiresIn: '60000' });
+    //
+    //          res.send(user._id+" Welcome User having TOKEN :  " + myToken);}
+    //
+    // })
 
 };
-
-//    var email = req.body.email;
-//    var password = req.body.password;
-//
-//     Users.findOne({email: email,password :password},function (err,user) {
-//         if(err ){
-//             console.log(err);
-//             res.sendStatus(500);}
-//         if(!user ){
-//              res.send("No such user");}
-//
-//              res.send("Welcome User");
-//
-//     })
-//
-// };
 
 exports.userProfile = function (req, res){
     var email = req.params.email;
@@ -119,7 +128,15 @@ exports.Remove = function (req,res) {
     })
 };
 
-exports.give = function (req,res) {
-    res.send(myToken);
+exports.give = function (req,res,next) {
+    jwt.verify(myToken, 'secret', function(err, decoded) {
+        if (err) {
+            return res.json({ success: false, message: 'Failed to authenticate token.' });
+        } else {
+            // if everything is good, save to request for use in other routes
+            req.decoded = decoded;
+            next();
+        }
+    });
 
 };

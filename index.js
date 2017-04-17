@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var Users = require('./user/Model');
-
+var expressJWT = require('express-jwt');
 
 //Connect to mongodb
 mongoose.connect('mongodb://localhost/UserDB');
@@ -20,10 +20,10 @@ mongoose.connection.once('open',function () {
     console.log("Connection Error:",error);
 });
 
+
 //body parser middleware
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-
 
 
 //passport init
