@@ -12,35 +12,29 @@ var myToken ;
 
 mongoose.Promise = global.Promise;
 
-exports.createUser = function(req, res) {
+exports.createUser = function(req, res,next) {
 
   var NewUser = new Users(req.body);
 
     NewUser.save (function (err,user) {
-        if (err)
-            res.send(boom.unauthorized(err));
+        if (user)
+            res.json(user);
 
-        res.json(user);
+          next (boom.badRequest('invalid query'));
 
-    });
-};
+    })};
 
-exports.ShowUser = function (req,res) {
-    Users.find({},function (err , user) {
-        if (err) {
-            res.send(err)
-        }
+exports.ShowUsers = function (req,res) {
+    var decode = jwt.verify(myToken,'secret' ,function (err,decoded) {
 
-        else {
-            jwt.verify(myToken,'secret' ,function (err,decoded) {
-                res.send(decoded);
-            });
-           // res.send(user);
+        Users.find({},function (err,user) {
+            if(!user)
+                res.send("No User Found");
+            res.send(user);
 
-        }
-    })
-};
+        })
 
+    })};
 
 
 exports.logInUser = function (req,res) {
@@ -55,7 +49,7 @@ exports.logInUser = function (req,res) {
         if (err) throw err;
 
         if (!user) {
-            res.json({ success: false, message: 'Authentication failed. User not found.' });
+            next(boom.unauthorized('invalid User'));
         } else if (user) {
 
             // check if password matches
@@ -65,7 +59,7 @@ exports.logInUser = function (req,res) {
 
                 // if user is found and password is right
                 // create a token
-                var token = jwt.sign({
+                myToken = jwt.sign({
                     id: user._id ,
                     email:email}, 'secret', {
                     expiresIn: 10 * 60000 // expires in 10 mins
@@ -75,7 +69,7 @@ exports.logInUser = function (req,res) {
                 res.json({
                     success: true,
                     message: 'Enjoy your token!',
-                    token: token
+                    token: myToken
                 });
             }
 
@@ -102,19 +96,17 @@ exports.logInUser = function (req,res) {
 };
 
 exports.userProfile = function (req, res){
-    var email = req.params.email;
+    var decode = jwt.verify(myToken,'secret' ,function (err,decoded) {
 
-    Users.findOne ({email:email},function (err,user) {
-        if(err ){
-            console.log(err);
-            res.sendStatus(500);}
-        if(!user ){
-             res.send("No such user");}
+        Users.findOne({email : decoded.email},function (err,user) {
+            if(!user)
+                res.send("No User Found");
+            res.send(user);
 
-             res.send("Welcome User \n\n "+ user);
+        })
 
-    })
-};
+    })};
+
 
 //remove users from the db
 exports.Remove = function (req,res) {

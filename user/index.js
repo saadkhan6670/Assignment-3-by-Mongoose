@@ -1,4 +1,5 @@
 var express = require('express');
+var app = express();
 var router = express.Router();
 var user = require('./controller');
 var passport = require('passport');
@@ -14,12 +15,10 @@ router.post('/create-user' , user.createUser);
 router.post('/login-user',user.logInUser);
 
 router.get('/remove-user', user.Remove);
-router.get('/show-user' , user.ShowUser);
+router.get('/show-users' , user.ShowUsers);
 
 
-router.get('/user-profile/:email', user.userProfile);
-
-//router.get('/remove-user',passport.authenticate('bearer', { session: false }), user.Remove);
+router.get('/user-profile', user.userProfile);
 
 
 module.exports = router;
