@@ -9,7 +9,6 @@ var jwt = require('jsonwebtoken');
 
 var myToken ;
 
-
 mongoose.Promise = global.Promise;
 
 exports.createUser = function(req, res,next) {
@@ -20,16 +19,18 @@ exports.createUser = function(req, res,next) {
         if (user)
             res.json(user);
 
-          next (boom.badRequest('invalid query'));
-
+        else {
+            var err2 = new Error(err);
+            err2.status = 403;
+            next(err2);
+        }
     })};
 
 exports.ShowUsers = function (req,res) {
-    var decode = jwt.verify(myToken,'secret' ,function (err,decoded) {
+    var decode = jwt.verify(myToken,'secret' ,function (err,decoded,next) {
 
         Users.find({},function (err,user) {
-            if(!user)
-                res.send("No User Found");
+            if(user)
             res.send(user);
 
         })
@@ -37,25 +38,16 @@ exports.ShowUsers = function (req,res) {
     })};
 
 
-exports.logInUser = function (req,res) {
+exports.logInUser = function (req,res,next) {
 
    var email = req.body.email;
    var password = req.body.password;
 
     Users.findOne({
-        email: email
+        email: email , password:password
     }, function(err, user) {
 
-        if (err) throw err;
-
-        if (!user) {
-            next(boom.unauthorized('invalid User'));
-        } else if (user) {
-
-            // check if password matches
-            if (user.password != password) {
-                res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-            } else {
+        if (user) {
 
                 // if user is found and password is right
                 // create a token
@@ -72,10 +64,14 @@ exports.logInUser = function (req,res) {
                     token: myToken
                 });
             }
+        else {
 
-        }
+            var err2 = new Error('Unauthorized');
 
-    });
+            err2.status = 401;
+            next(err2);
+        }});
+
 
     // Users.findOne({email: email,password :password},function (err,user) {
     //     if(err ){
@@ -118,17 +114,4 @@ exports.Remove = function (req,res) {
         res.send("Users  deleted");
 
     })
-};
-
-exports.give = function (req,res,next) {
-    jwt.verify(myToken, 'secret', function(err, decoded) {
-        if (err) {
-            return res.json({ success: false, message: 'Failed to authenticate token.' });
-        } else {
-            // if everything is good, save to request for use in other routes
-            req.decoded = decoded;
-            next();
-        }
-    });
-
 };

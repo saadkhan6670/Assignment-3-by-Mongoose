@@ -29,8 +29,8 @@ app.listen(port, function () {
     console.log('Running server on ' + port);
 });
 
-app.use(function (err, req, res, next) {
-   // // console.error(err.stack);
-    res.status(400).send('Something broke!')
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.send("Error: "+ err.message);
 });
 
