@@ -20,9 +20,9 @@ exports.createUser = function(req, res,next) {
             res.json(user);
 
         else {
-            var err2 = new Error(err);
-            err2.status = 403;
-            next(err2);
+            var err = new Error(err);
+            err.status = 403;
+            next(err);
         }
     })};
 

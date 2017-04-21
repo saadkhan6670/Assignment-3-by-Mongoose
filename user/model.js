@@ -22,8 +22,8 @@ var phoneValidate =[
 var UserSchema = new Schema ({
     firstname : String,
     lastname : String,
-    email : { type:String, validate:emailValidate, unique: true, lowercase:true, message:"Email already exits" },
-    phone : {type:Number, validate:phoneValidate},
+    email : { type:String, validate:emailValidate, unique: true, lowercase:true, message:'Invalid email' },
+    phone : {type:Number, validate:phoneValidate, message:'Invalid Phone'},
     password : String
 
 });
